@@ -1,4 +1,4 @@
-# Remote Sensing Image Classification
+# Remote Sensing Image Captioning with Transformer and Multilabel Classification
 ## Installation
 The program requires the following dependencies:
 * pytorch
