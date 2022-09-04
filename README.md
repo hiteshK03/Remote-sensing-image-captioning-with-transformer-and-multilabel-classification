@@ -5,8 +5,76 @@ The program requires the following dependencies:
 * fairseq 0.9.0
 * CUDA (for using GPU)
 
-## Instructions to run code
-Will be updated soon.
+## Setup
+We are using COCO Caption Evaluation library, which uses the Stanford CoreNLP 3.6.0 toolset
+```
+cd external/coco-caption
+./get_stanford_models.sh
+export PYTHONPATH=./external/coco-caption
+```
+
+## Pre-procesing
+Pre-process UC Merced images and captions
+```
+./preprocess_captions.sh ms-coco
+./preprocess_images.sh ms-coco
+```
+
+## Training
+Hyperparameters need to be tuned. This is just an example.
+```
+python -m fairseq_cli.train \
+  --save-dir .checkpoints \
+  --user-dir task \
+  --task captioning \
+  --arch default-captioning-arch \
+  --encoder-layers 3 \
+  --decoder-layers 6 \
+  --features obj \
+  --feature-spatial-encoding \
+  --optimizer adam \
+  --adam-betas "(0.9,0.999)" \
+  --lr 0.0003 \
+  --lr-scheduler inverse_sqrt \
+  --min-lr 1e-09 \
+  --warmup-init-lr 1e-8 \
+  --warmup-updates 8000 \
+  --criterion label_smoothed_cross_entropy \
+  --label-smoothing 0.1 \
+  --weight-decay 0.0001 \
+  --dropout 0.3 \
+  --max-epoch 25 \
+  --max-tokens 4096 \
+  --max-source-positions 100 \
+  --encoder-embed-dim 512 \
+  --num-workers 2
+```
+
+## Evaluation
+### Generate
+To generate captions for images in test-split
+```
+python generate.py \
+  --user-dir task \
+  --features obj \
+  --tokenizer moses \
+  --bpe subword_nmt \
+  --bpe-codes output/codes.txt \
+  --beam 5 \
+  --split test \
+  --path .checkpoints-scst/checkpoint24.pt \
+  --input output/test-ids.txt \
+  --output output/test-predictions.json
+```
+### Scoring
+The following example calculates metrics for captions contained in 
+`output/test-predictions.json`.
+
+```
+./score.sh \
+  --reference-captions external/coco-caption/annotations/captions_val2014.json \
+  --system-captions output/test-predictions.json
+```
 
 ## Model
 
