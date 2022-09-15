@@ -221,24 +221,24 @@ class CaptionsDataset(FairseqDataset):
 
 
 class ImageCaptionDataset(FairseqDataset):
-    def __init__(self, img_ds, cap_ds, cap_dict, label_ds, scst=False, shuffle=False):
+    def __init__(self, img_ds, cap_ds, cap_dict, scst=False, shuffle=False):
         self.img_ds = img_ds
         self.cap_ds = cap_ds
         self.cap_dict = cap_dict
-        self.label_ds = label_ds
+        # self.label_ds = label_ds
         self.scst = scst
         self.shuffle = shuffle
 
     def __getitem__(self, index):
         source_features, source_locations = self.img_ds[index]
         target = self.cap_ds[index]
-        label = self.label_ds[index]
+        # label = self.label_ds[index]
 
         return {
             'id': index,
             'source_features': source_features,
             'source_locations': source_locations,
-            'target': target,
+            'target': target
             'label' : label
         }
 
@@ -305,6 +305,7 @@ class ImageCaptionDataset(FairseqDataset):
         if self.scst:
             target_batch = target_samples
             rotate_batch = None
+            # label_batch = torch.cat(label_samples, dim=0)
         else:
             target_batch = data_utils.collate_tokens(target_samples,
                                                      pad_idx=self.cap_dict.pad(),

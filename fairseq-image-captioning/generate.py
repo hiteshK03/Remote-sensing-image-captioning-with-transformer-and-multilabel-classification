@@ -36,7 +36,6 @@ def main(script_args, model_args):
         store_predictions_as_csv(predictions_cap, script_args.output, mode='caption')
         store_predictions_as_csv(predictions_label, script_args.output_l, mode='labels')
 
-
 def predict(image_id_path: str,
             grid_features_path: str,
             obj_features_path: str,
@@ -90,6 +89,7 @@ def predict(image_id_path: str,
     prediction_labels = []
 
     for sample_id in tqdm(sample_ids):
+        # print(sample_id)
         features, locations = image_ds.read_data(sample_id)
         length = features.shape[0]
 
@@ -105,13 +105,18 @@ def predict(image_id_path: str,
             }
         }
 
-        translations, label_preds = task.inference_step(generator, models, sample)
+        translations = task.inference_step(generator, models, sample)
         prediction = decode(captions_dict.string(translations[0][0]['tokens']))
 
         prediction_ids_cap.append(sample_id)
         prediction_ids_label.append(sample_id + 1)
         prediction_results.append(prediction)
         prediction_labels.append(label_preds)
+
+    return pd.DataFrame.from_dict(data={
+            'image_id': prediction_ids,
+            'caption': prediction_results
+        })
 
     if mode == 'captions':
         return pd.DataFrame.from_dict(data={
