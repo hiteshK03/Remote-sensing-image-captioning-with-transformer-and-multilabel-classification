@@ -1,4 +1,5 @@
-# Remote Sensing Image Captioning with Transformer and Multilabel Classification
+# Exploring Transformer and Multi Label Classification for Remote Sensing Image Captioning
+
 ## Installation
 The program requires the following dependencies:
 * pytorch
@@ -16,9 +17,12 @@ export PYTHONPATH=./external/coco-caption
 ## Pre-procesing
 Pre-process UC Merced images and captions
 ```
-./preprocess_captions.sh ms-coco
-./preprocess_images.sh ms-coco
+./preprocess_captions.sh uc-merced
+./preprocess_images.sh uc-merced
 ```
+
+## Note
+Add/Replace files to fairseq 0.9.0 from [fairseq](https://github.com/hiteshK03/Remote-sensing-image-captioning-with-transformer-and-multilabel-classification/tree/main/fairseq)  
 
 ## Training
 Hyperparameters need to be tuned. This is just an example.
@@ -56,7 +60,7 @@ To generate captions for images in test-split
 ```
 python generate.py \
   --user-dir task \
-  --features obj \
+  --features grid \
   --tokenizer moses \
   --bpe subword_nmt \
   --bpe-codes output/codes.txt \
@@ -64,7 +68,8 @@ python generate.py \
   --split test \
   --path .checkpoints-scst/checkpoint24.pt \
   --input output/test-ids.txt \
-  --output output/test-predictions.json
+  --output output/test-predictions.json \
+  --output_l output/test-labels-preds.csv
 ```
 ### Scoring
 The following example calculates metrics for captions contained in 
@@ -75,6 +80,16 @@ The following example calculates metrics for captions contained in
   --reference-captions external/coco-caption/annotations/captions_val2014.json \
   --system-captions output/test-predictions.json
 ```
+
+The following example calculates metrics for labels contained in 
+`output/test-labels-preds.csv`.
+
+```
+python score_label.py
+  --reference-captions output/label_preds.csv \
+  --system-captions output/test-labels-preds.csv
+```
+
 
 ## Model
 
@@ -101,3 +116,18 @@ Image | Caption |
 <img src="https://user-images.githubusercontent.com/45922320/137482361-8c3e53a0-ce9d-4270-b488-c343c9dff24c.png" width="400"> | **Ground truth Caption:** Two airplanes are stopped at the airport .  <br/>**Caption with angle prediction:** it is a purple airplane stopped at the airport.  <br/>**Caption with reconstruction:** an airplane is stopped at the airport and the ground is dark. |
 <img src="https://user-images.githubusercontent.com/45922320/137482380-f256903d-2320-4278-9474-ee214aca3ca7.png" width="400"> | **Ground truth Caption:** Many mobile homes are closed to each other with some cars parked at the roadside in the mobile home park .  <br/>**Caption with angle prediction:** many houses arranged in lines in the dense residential area.  <br/>**Caption with reconstruction:** lots of mobile homes with plants surrounded in the mobile home park. |
 <img src="https://user-images.githubusercontent.com/45922320/137482377-43f1fe47-ff94-44ff-ae4e-dcf034385d47.png" width="400"> | **Ground truth Caption:** An intersection with a road cross over the other roads .  <br/>**Caption with angle prediction:** an overpass go across the roads with some cars on the roads. <br/>**Caption with reconstruction:** an overpass with a road go across another roads diagonally with some cars on it. |
+
+## Reference
+Codebase inspired from https://github.com/krasserm/fairseq-image-captioning  
+
+If you find this code useful for your research, please cite our [paper](https://ieeexplore.ieee.org/abstract/document/9855519):
+```
+@article{kandala2022exploring,
+  title={Exploring Transformer and multi-label classification for remote sensing image captioning},
+  author={Kandala, Hitesh and Saha, Sudipan and Banerjee, Biplab and Zhu, Xiao Xiang},
+  journal={IEEE Geoscience and Remote Sensing Letters},
+  year={2022},
+  publisher={IEEE}
+}
+```
+
